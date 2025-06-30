@@ -33,6 +33,7 @@ $global:sleepSeconds               = 0                           # Loop interval
 $global:mtimeThreshholdSeconds     = 3                          # Minimum file age before processing (seconds)
 $global:largeFileThreshholdBytes   = 50000                      # Threshold for large files (pixel data stripping)
 $global:rejectByDeleting           = $true                      # Delete rejected files vs moving them
+$global:maskPatientNames           = $true                      # Enable patient name masking for privacy
 
 #=====================================================================================================================================================
 # Directory Configuration

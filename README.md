@@ -69,7 +69,10 @@ A PowerShell-based tool for automating DICOM study pre-fetching. It monitors an 
 - **Robust Workflow Management:** Uses a multi-stage process with dedicated directories for tracking the state of each task (queued, processed, rejected, no-results).
 - **Efficient Processing:** Avoids re-processing of already handled studies by keeping a history of processed files.
 - **Pixel Data Stripping:** Optionally strips pixel data from large DICOM files to save space, as only the header information is needed for the query.
-- **Looping Operation:** Can be configured to run continuously, with a configurable sleep interval between cycles.
+- **Worklist Integration:** Connects to DICOM Modality Worklist servers to automatically discover and process scheduled procedures.
+- **Privacy Controls:** Configurable patient name masking for HIPAA compliance and privacy protection.
+- **Retry Mechanisms:** Robust error handling with configurable retry logic for network operations.
+- **Comprehensive Logging:** Detailed logging with configurable levels and file rotation.
 
 ## Prerequisites
 
@@ -185,6 +188,24 @@ All configuration is done by copying `config.template.ps1` to `config.ps1` and e
 - `$global:rejectByDeleting`: If `$true`, rejected files will be deleted. If `$false`, they will be moved to the `rejected-stored-items` directory (default: $true)
 - `$global:maskPatientNames`: If `$true`, patient names in log output will be masked for privacy (default: $true)
 
+**Worklist Configuration:**
+
+- `$global:WorklistEndpointAETitle`: AE title of the worklist SCP server (default: "FLUX_WORKLIST")
+- `$global:WorklistEndpointHost`: Hostname/IP of the worklist server (default: "worklist.example.com")
+- `$global:WorklistEndpointPort`: Port number of the worklist server (default: 1070)
+- `$global:WorklistQueryIntervalSeconds`: Query interval in seconds (default: 300)
+- `$global:EnableImagePrefetch`: Enable automatic image prefetching (default: $true)
+- `$global:WorklistModalityFilter`: Filter by modality (null = all modalities)
+- `$global:WorklistScheduledDateFilter`: Filter by scheduled date (YYYYMMDD format)
+
+**Retry and Logging Configuration:**
+
+- `$global:RetryDefaultMaxRetries`: Default retry attempts (default: 3)
+- `$global:RetryDicomMoveMaxRetries`: C-MOVE retry attempts (default: 5)
+- `$global:logLevel`: Logging level - DEBUG, INFO, WARN, ERROR, FATAL (default: "INFO")
+- `$global:logToFile`: Enable file logging (default: $true)
+- `$global:logToConsole`: Enable console logging (default: $true)
+
 **Directory Configuration:**
 
 - `$global:cacheDirBasePath`: The base path for the working directories. Defaults to the `cache` subdirectory of the project
@@ -224,15 +245,20 @@ All configuration is done by copying `config.template.ps1` to `config.ps1` and e
 The main script supports the following parameters:
 
 ```powershell
-# Standard execution (continuous monitoring)
+# Standard execution - Run three-stage processing pipeline once
 .\qr-tool.ps1
 
-# Start with worklist query functionality
+# Start worklist query service - Continuously query worklist server for new items
 .\qr-tool.ps1 -StartWorklistQuery
 
 # Get help about the script
 Get-Help .\qr-tool.ps1
 ```
+
+**Parameter Details:**
+
+- **No parameters**: Runs the standard three-stage processing pipeline once and exits
+- **`-StartWorklistQuery`**: Starts the worklist query service that continuously monitors a DICOM Modality Worklist server for new scheduled procedures and automatically creates corresponding DICOM files in the incoming directory
 
 ### Directory Structure After Setup
 
@@ -245,8 +271,9 @@ qr-tool/
 │   ├── rejected-stored-items/   # Duplicate/rejected files
 │   ├── no-results-stored-items/ # Files with no matching studies
 │   ├── queued-study-moves/      # Pending study move requests
-│   └── processed-study-moves/   # Completed study moves
-└── logs/                        # Application logs (if logging enabled)
+│   ├── processed-study-moves/   # Completed study moves
+│   ├── worklist-cache/          # Worklist query cache files
+│   └── logs/                    # Application logs
 ```
 
 ## Build and Run
@@ -296,24 +323,21 @@ qr-tool/
 #### Local Execution (Windows)
 
 ```powershell
-# Standard execution
+# Standard execution - Run three-stage processing pipeline
 .\qr-tool.ps1
 
-# With verbose output
-.\qr-tool.ps1 -Verbose
-
-# Run once without looping
-.\qr-tool.ps1 -RunOnce
+# Start worklist query service
+.\qr-tool.ps1 -StartWorklistQuery
 ```
 
 #### Remote Execution (SSH)
 
 ```bash
-# From Linux/macOS to Windows machine
+# From Linux/macOS to Windows machine - Standard processing
 ssh windev "cd C:\dev\qr-tool && powershell -ExecutionPolicy Bypass -File qr-tool.ps1"
 
-# With parameters
-ssh windev "cd C:\dev\qr-tool && powershell -ExecutionPolicy Bypass -File qr-tool.ps1 -RunOnce -Verbose"
+# Start worklist query service remotely
+ssh windev "cd C:\dev\qr-tool && powershell -ExecutionPolicy Bypass -File qr-tool.ps1 -StartWorklistQuery"
 ```
 
 #### Service Installation (Optional)
@@ -321,11 +345,15 @@ ssh windev "cd C:\dev\qr-tool && powershell -ExecutionPolicy Bypass -File qr-too
 To run as a Windows service:
 
 ```powershell
-# Install as service (requires admin privileges)
+# Install standard processing service (requires admin privileges)
 New-Service -Name "QRTool" -BinaryPathName "powershell.exe -ExecutionPolicy Bypass -File C:\path\to\qr-tool.ps1" -DisplayName "DICOM QR Tool" -Description "Automated DICOM study prefetching service"
 
-# Start the service
+# Install worklist query service (requires admin privileges)
+New-Service -Name "QRToolWorklist" -BinaryPathName "powershell.exe -ExecutionPolicy Bypass -File C:\path\to\qr-tool.ps1 -StartWorklistQuery" -DisplayName "DICOM QR Tool Worklist" -Description "DICOM worklist query service"
+
+# Start the services
 Start-Service -Name "QRTool"
+Start-Service -Name "QRToolWorklist"
 ```
 
 ## Testing
@@ -531,10 +559,16 @@ Solution: Check directory permissions and file states:
 
 ### Debug Mode
 
-Enable verbose logging for troubleshooting:
+Enable verbose logging for troubleshooting by setting the log level in your configuration:
 
 ```powershell
-.\qr-tool.ps1 -Verbose -Debug
+# Edit config.ps1 to enable debug logging
+$global:logLevel = "DEBUG"
+
+# Then run normally
+.\qr-tool.ps1
+# or
+.\qr-tool.ps1 -StartWorklistQuery
 ```
 
 ## FAQ
