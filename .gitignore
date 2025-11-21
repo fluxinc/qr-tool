@@ -32,7 +32,4 @@ CLAUDE.md
 .claude/
 .taskmaster/
 config.ps1
-
-# Task files
-# tasks.json
-# tasks/ 
+.stfolder/
