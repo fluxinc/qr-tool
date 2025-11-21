@@ -652,7 +652,7 @@ For technical support or questions, please:
 **Built with ❤️ for the medical imaging community**
 
 <!-- TASKMASTER_EXPORT_START -->
-> 🎯 **Taskmaster Export** - 2025-06-27 18:02:31 UTC
+> 🎯 **Taskmaster Export** - 2025-07-03 17:48:30 UTC
 > 📋 Export: without subtasks • Status filter: none
 > 🔗 Powered by [Task Master](https://task-master.dev?utm_source=github-readme&utm_medium=readme-export&utm_campaign=qr-tool&utm_content=task-export-link)
 
@@ -660,72 +660,61 @@ For technical support or questions, please:
 ╭─────────────────────────────────────────────────────────╮╭─────────────────────────────────────────────────────────╮
 │                                                         ││                                                         │
 │   Project Dashboard                                     ││   Dependency Status & Next Task                         │
-│   Tasks Progress: █████████████░░░░░░░ 63%    ││   Dependency Metrics:                                   │
-│   63%                                                   ││   • Tasks with no dependencies: 0                      │
-│   Done: 10  In Progress: 0  Pending: 6  Blocked: 0     ││   • Tasks ready to work on: 2                          │
-│   Deferred: 0  Cancelled: 0                             ││   • Tasks blocked by dependencies: 4                    │
-│                                                         ││   • Most depended-on task: #1 (10 dependents)           │
-│   Subtasks Progress: ░░░░░░░░░░░░░░░░░░░░     ││   • Avg dependencies per task: 4.0                      │
+│   Tasks Progress: ░░░░░░░░░░░░░░░░░░░░ 0%    ││   Dependency Metrics:                                   │
+│   0%                                                   ││   • Tasks with no dependencies: 1                      │
+│   Done: 0  In Progress: 0  Pending: 10  Blocked: 0     ││   • Tasks ready to work on: 1                          │
+│   Deferred: 0  Cancelled: 0                             ││   • Tasks blocked by dependencies: 9                    │
+│                                                         ││   • Most depended-on task: #1 (5 dependents)           │
+│   Subtasks Progress: ░░░░░░░░░░░░░░░░░░░░     ││   • Avg dependencies per task: 1.1                      │
 │   0% 0%                                               ││                                                         │
-│   Completed: 0/6  In Progress: 0  Pending: 6      ││   Next Task to Work On:                                 │
-│   Blocked: 0  Deferred: 0  Cancelled: 0                 ││   ID: 14 - Implement Study Deduplication     │
-│                                                         ││   Priority: medium  Dependencies: Some                    │
-│   Priority Breakdown:                                   ││   Complexity: ● 6                                       │
-│   • High priority: 10                                   │╰─────────────────────────────────────────────────────────╯
-│   • Medium priority: 4                                 │
-│   • Low priority: 2                                     │
+│   Completed: 0/0  In Progress: 0  Pending: 0      ││   Next Task to Work On:                                 │
+│   Blocked: 0  Deferred: 0  Cancelled: 0                 ││   ID: 1 - Implement Comprehensive Unit Testing ...     │
+│                                                         ││   Priority: high  Dependencies: None                    │
+│   Priority Breakdown:                                   ││   Complexity: ● 7                                       │
+│   • High priority: 5                                   │╰─────────────────────────────────────────────────────────╯
+│   • Medium priority: 5                                 │
+│   • Low priority: 0                                     │
 │                                                         │
 ╰─────────────────────────────────────────────────────────╯
 ┌───────────┬──────────────────────────────────────┬─────────────────┬──────────────┬───────────────────────┬───────────┐
 │ ID        │ Title                                │ Status          │ Priority     │ Dependencies          │ Complexi… │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 1         │ Setup Project Structure              │ ✓ done          │ high         │ None                  │ ● 2       │
+│ 1         │ Implement Comprehensive Unit Testing │ ○ pending       │ high         │ None                  │ ● 7       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 2         │ Create Configuration File            │ ✓ done          │ high         │ 1                     │ ● 3       │
+│ 2         │ Implement Startup Configuration Vali │ ○ pending       │ high         │ 1                     │ ● 4       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 3         │ Develop Utility Functions            │ ✓ done          │ high         │ 1, 2                  │ ● 4       │
+│ 3         │ Implement Performance Monitoring Mod │ ○ pending       │ high         │ 1                     │ ● 5       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 4         │ Develop DICOM Helper Functions       │ ✓ done          │ high         │ 1, 2, 3               │ ● 5       │
+│ 4         │ Enhance Study Deduplication with Exp │ ○ pending       │ high         │ 1                     │ ● 6       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 5         │ Implement Stage 1 - File Ingestion   │ ✓ done          │ high         │ 1, 2, 3, 4            │ ● 6       │
+│ 5         │ Improve Error Recovery with Exponent │ ○ pending       │ high         │ 1                     │ ● 7       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 6         │ Implement Stage 2 - Study Discovery  │ ✓ done          │ high         │ 1, 2, 3, 4, 5         │ ● 7       │
+│ 6         │ Implement Structured Logging         │ ○ pending       │ medium       │ 1                     │ ● 6       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 7         │ Implement Stage 3 - Study Retrieval  │ ✓ done          │ high         │ 1, 2, 3, 4, 6         │ ● 6       │
+│ 7         │ Optimize Code and Memory Management  │ ○ pending       │ medium       │ 3                     │ ● 8       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 8         │ Develop FoDicomCmdlets C# Project    │ ✓ done          │ high         │ 1                     │ ● 8       │
+│ 8         │ Develop Backend API for Monitoring D │ ○ pending       │ medium       │ 3, 6                  │ ● 6       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 9         │ Create Main QR Tool Script           │ ✓ done          │ high         │ 1, 2, 3, 4, 5, 6, 7,  │ ● 7       │
+│ 9         │ Build Web-Based Monitoring Dashboard │ ○ pending       │ medium       │ 8                     │ ● 5       │
 ├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 10        │ Create Comprehensive README          │ ✓ done          │ medium       │ 1, 2, 3, 4, 5, 6, 7,  │ ● 3       │
-├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 11        │ Implement Error Handling and Logging │ ○ pending       │ medium       │ 1, 2, 3, 4, 5, 6, 7,  │ ● 7       │
-├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 12        │ Implement Performance Monitoring     │ ○ pending       │ low          │ 5, 6, 7, 11           │ ● 6       │
-├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 13        │ Implement Retry Mechanism for Failed │ ○ pending       │ medium       │ 4, 11                 │ ● 5       │
-├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 14        │ Implement Study Deduplication        │ ○ pending       │ medium       │ 6, 7                  │ ● 6       │
-├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 15        │ Create Unit Tests                    │ ○ pending       │ low          │ 3, 4, 5, 6, 7, 11, 13 │ ● 8       │
-├───────────┼──────────────────────────────────────┼─────────────────┼──────────────┼───────────────────────┼───────────┤
-│ 16        │ Implement Periodic DICOM Modality Wo │ ○ pending       │ high         │ 4, 11, 13             │ ● 9       │
+│ 10        │ Implement Container Support with Doc │ ○ pending       │ medium       │ 2, 9                  │ ● 8       │
 └───────────┴──────────────────────────────────────┴─────────────────┴──────────────┴───────────────────────┴───────────┘
 ```
 
 ╭────────────────────────────────────────────── ⚡ RECOMMENDED NEXT TASK ⚡ ──────────────────────────────────────────────╮
 │                                                                                                                         │
-│  🔥 Next Task to Work On: #14 - Implement Study Deduplication                                  │
+│  🔥 Next Task to Work On: #1 - Implement Comprehensive Unit Testing Framework                                  │
 │                                                                                                                         │
-│  Priority: medium   Status: ○ pending                                                                                     │
-│  Dependencies: 6, 7                                                                                                     │
+│  Priority: high   Status: ○ pending                                                                                     │
+│  Dependencies: None                                                                                                     │
 │                                                                                                                         │
-│  Description: Add functionality to avoid requesting the same study multiple times.     │
+│  Description: Establish a comprehensive unit testing framework for the PowerShell Core Engine and the FoDicomCmdlets C# library. This is a foundational step to ensure code quality, enable safe refactoring, and prevent regressions as new features are added.     │
 │                                                                                                                         │
-│  Start working: task-master set-status --id=14 --status=in-progress                                                     │
-│  View details: task-master show 14                                                                      │
+│  Start working: task-master set-status --id=1 --status=in-progress                                                     │
+│  View details: task-master show 1                                                                      │
 │                                                                                                                         │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
 
 ╭──────────────────────────────────────────────────────────────────────────────────────╮
 │                                                                                      │
@@ -739,6 +728,8 @@ For technical support or questions, please:
 
 > 📋 **End of Taskmaster Export** - Tasks are synced from your project using the `sync-readme` command.
 <!-- TASKMASTER_EXPORT_END -->
+
+
 Prior to runninig qr-tool.ps1, build the FoDicomCmdlets solution in Release mode as the script will need to make use of both the DLL it will build and the DLL of the copy of fo-dicom that the solution will install in itjs packages folder.
 
 Before running the script, be sure to copy config.template.ps1 to config.ps1 to and make any required changes.

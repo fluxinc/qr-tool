@@ -3,70 +3,70 @@
 #            move them to queued stored item to $processedStoredItemsPath.
 ##################################################################################################################################################
 function Do-Stage3 {
-    $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.move-request
+  $filesInQueuedStudyMovesDir = Get-ChildItem -Path $global:queuedStudyMovesDirPath -Filter *.move-request
 
-    if ($filesInQueuedStudyMovesDir.Count -eq 0) {
-        Write-Indented "Stage #3: No files found in queuedStudyMoves."
-    } else {
-        $counter = 0
-        
-        Write-Indented " " # Just print a newline for output readability.    
-        Write-Indented "Stage #3: Found $($filesInQueuedStudyMovesDir.Count) files in queuedStudyMoves."
+  if ($filesInQueuedStudyMovesDir.Count -eq 0) {
+    Write-Indented "Stage #3: No files found in queuedStudyMoves."
+  }
+  else {
+    $counter = 0
 
-        Indent
-        
-        foreach ($file in $filesInQueuedStudyMovesDir) {
-            $counter++
-            
-            Write-Indented "Processing file #$counter/$($filesInQueuedStudyMovesDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
-            
-            Indent
+    Write-Indented " " # Just print a newline for output readability.
+    Write-Indented "Stage #3: Found $($filesInQueuedStudyMovesDir.Count) files in queuedStudyMoves."
 
-            $studyInstanceUID = $file.BaseName
+    Indent
 
-            Write-Indented " " # Just print a newline for output readability.
-            Write-Indented "Moving study with StudyInstanceUID '$studyInstanceUID'..."
-            
-            $cMoveResponses = Move-StudyByStudyInstanceUID $studyInstanceUID
+    foreach ($file in $filesInQueuedStudyMovesDir) {
+      $counter++
 
-            if ($cMoveResponses -eq $null -or $cMoveResponses.Count -eq 0) {
-                Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
-                Remove-Item -Path $file.FullName
+      Write-Indented "Processing file #$counter/$($filesInQueuedStudyMovesDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
 
-                Outdent
-                
-                Continue
-            }
+      Indent
 
-            $cMoveStatus    = $cMoveResponses[-1]
-            $cMoveResponses = $cMoveResponses[0..($cMoveResponses.Count - 2)]
+      $studyInstanceUID = $file.BaseName
 
-            if ($cMoveStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
-                Write-Indented "... C-Move's final response status was $($cMoveStatus.Statua). Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
-                Remove-Item -Path $file.FullName
+      Write-Indented " " # Just print a newline for output readability.
+      Write-Indented "Moving study with StudyInstanceUID '$studyInstanceUID'..."
 
-                Outdent
-                
-                Continue
-            }
+      $cMoveResponses = Move-StudyByStudyInstanceUID $studyInstanceUID
 
-            Write-Indented "... C-Move was successful."
+      if ($cMoveResponses -eq $null -or $cMoveResponses.Count -eq 0) {
+        Write-Indented "... no responses (or null responses) received. This is unusual. Removing queued study move $($file.FullName): move could be re-attempting if re-triggered."
+        Remove-Item -Path $file.FullName
 
-            # If the final response indicates sucess, we don't need need to examine the individual responses.
-            
-            $processedStudyMovePath = Join-Path -Path $global:processedStudyMovesDirPath -ChildPath $file.Name
-
-            Write-Indented " " # Just print a newline for output readability.
-            Write-Indented "Moving $(Trim-BasePath -Path $file.FullName) to $(Trim-BasePath -Path $processedStudyMovePath)... " -NoNewLine
-            Move-Item -Path $file.FullName -Destination $processedStudyMovePath
-            Write-Host " done."
-            
-            
-            Outdent
-        } # foreach $file
-        ##############################################################################################################################################
-        
         Outdent
-    }
+
+        Continue
+      }
+
+      $cMoveStatus = $cMoveResponses[-1]
+      $cMoveResponses = $cMoveResponses[0..($cMoveResponses.Count - 2)]
+
+      if ($cMoveStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
+        Write-Indented "... C-Move's final response status was $($cMoveStatus.Status). Keeping queued study move $($file.FullName) for future retry attempts."
+
+        Outdent
+
+        Continue
+      }
+
+      Write-Indented "... C-Move was successful."
+
+      # If the final response indicates sucess, we don't need need to examine the individual responses.
+
+      $processedStudyMovePath = Join-Path -Path $global:processedStudyMovesDirPath -ChildPath $file.Name
+
+      Write-Indented " " # Just print a newline for output readability.
+      Write-Indented "Moving $(Trim-BasePath -Path $file.FullName) to $(Trim-BasePath -Path $processedStudyMovePath)... " -NoNewLine
+      Move-Item -Path $file.FullName -Destination $processedStudyMovePath
+      Write-Host " done."
+
+
+      Outdent
+    } # foreach $file
+    ##############################################################################################################################################
+
+    Outdent
+  }
 }
 ######################################################################################################################################################

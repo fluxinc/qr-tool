@@ -25,10 +25,6 @@ node_modules/
 *.sw?
 # OS specific
 
-# Task files
-# tasks.json
-# tasks/
-
 config.ps1
 .cursor/
 .roo*
@@ -36,3 +32,7 @@ CLAUDE.md
 .claude/
 .taskmaster/
 config.ps1
+
+# Task files
+# tasks.json
+# tasks/ 

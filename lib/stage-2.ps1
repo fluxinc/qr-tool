@@ -38,28 +38,25 @@ function Do-Stage2 {
 
       $queryDetails = "PatientName=$($tags.PatientName)|PatientBirthDate=$($tags.PatientBirthDate)|Modality=$modality"
 
-      $cFindResponses = Get-StudiesByPatientNameAndBirthDate `
-        -MyAE             $global:myAE `
-        -QrServerAE       $global:qrServerAE `
-        -QrServerHost     $global:qrServerHost `
-        -QrServerPort     $global:qrServerPort `
+      # Use the wrapper function that includes proper logging and retry logic
+      $cFindResponses = Get-PatientStudiesWithRetry `
         -PatientName      $tags.PatientName `
         -PatientBirthDate $tags.PatientBirthDate `
         -Modality         $modality `
         -MonthsBack       $global:studyFindMonthsBack
 
       if ($cFindResponses -eq $null -or $cFindResponses.Count -eq 0) {
-        Log-Query -QueryType "C-FIND" -QueryDetails "$queryDetails|Result=NoResponse"
+        Write-LogWarn "C-FIND returned no responses for $queryDetails"
       }
       else {
         $cFindStatus = $cFindResponses[-1]
         if ($cFindStatus.Status -ne [Dicom.Network.DicomStatus]::Success) {
-          Log-Query -QueryType "C-FIND" -QueryDetails "$queryDetails|Error=$($cFindStatus.Status)"
+          Write-LogError "C-FIND failed with status: $($cFindStatus.Status) for $queryDetails"
         }
         else {
           $studies = $cFindResponses[0..($cFindResponses.Count - 2)]
           $studyDates = $studies | ForEach-Object { $_.Dataset.GetString([Dicom.DicomTag]::StudyDate) }
-          Log-Query -QueryType "C-FIND" -QueryDetails "$queryDetails|StudyCount=$($studies.Count)|StudyDates=$($studyDates -join ',')"
+          Write-LogInfo "C-FIND successful: Found $($studies.Count) studies with dates: $($studyDates -join ',')"
         }
       }
 

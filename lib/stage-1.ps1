@@ -6,23 +6,23 @@ function Do-Stage1 {
     Write-Indented " " # Just print a newline for output readability.
 
     $filesInIncomingStoredItemsDir = Get-ChildItem -Path $global:incomingStoredItemsDirPath -Filter *.dcm
-    
+
     if ($filesInIncomingStoredItemsDir.Count -eq 0) {
         Write-Indented "Stage #1: No files found in incomingStoredItemsDir."
     } else {
         $counter = 0
-        
+
         Write-Indented "Stage #1: Found $($filesInIncomingStoredItemsDir.Count) files in incomingStoredItems."
 
         Indent
-        
+
         foreach ($file in $filesInIncomingStoredItemsDir) {
             $counter++
 
             Write-Indented "Processing file #$counter/$($filesInIncomingStoredItemsDir.Count) '$(Trim-BasePath -Path $file.FullName)':"
-            
+
             Indent
-            
+
             $lastWriteTime = $file.LastWriteTime
             $timeDiff      = (Get-Date) - $lastWriteTime
 
@@ -35,13 +35,13 @@ function Do-Stage1 {
             WriteStudyTags-Indented -StudyTags $tags
 
             $hashInput = "$($tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate)"
-            
+
             if ($global:maskPatientNames) {
                 Write-Indented "Hash Input:       $(Mask-PatientName -Name $tags.PatientName)-$($tags.PatientBirthdate)-$($tags.StudyDate) (masked)"
             } else {
                 Write-Indented "Hash Input:       $HashInput"
             }
-            
+
             # The stage 1 hash is just name + DoB + study date, presumably the last is so that if the same patient comes in for
             # another appointment in the future a new hash will be generated.
             $studyHash      = Hash-String -HashInput $hashInput
@@ -52,7 +52,7 @@ function Do-Stage1 {
             $foundFile      = Find-FileInDirectories `
               -Filename $hashedFilename `
               -Directories @($global:queuedStoredItemsDirPath, $global:processedStoredItemsDirPath)
-            
+
             if ($foundFile -eq $null) {
                 $queuedStoredItemPath = Join-Path -Path $global:queuedStoredItemsDirPath -ChildPath $hashedFileName
 
@@ -63,17 +63,18 @@ function Do-Stage1 {
                 $null = MaybeStripPixelDataAndThenMoveTo-Path -File $file -Destination $queuedStoredItemPath
 
                 Outdent
-                
+
                 Write-Indented "... done."
             } else {
                 Write-Indented "Item for hash $studyHash already exists as $(Trim-BasePath -Path $foundFile), rejecting."
                 Reject-File -File $file -RejectedDirPath $global:rejectedStoredItemsDirPath
             }
-            
+
             Outdent
-        } # foreach $file
+        }
+ # foreach $file
         ##############################################################################################################################################
-        
+
         Outdent
     }
 }

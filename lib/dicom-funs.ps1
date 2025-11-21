@@ -2,26 +2,26 @@
 # Get-DicomTagString
 #################################################################################################################################################
 function Get-DicomTagString {
-    param (
-        [Parameter(Mandatory = $true)]
-        [Dicom.DicomDataset]$Dataset,
+  param (
+    [Parameter(Mandatory = $true)]
+    [Dicom.DicomDataset]$Dataset,
 
-        [Parameter(Mandatory = $true)]
-        [Dicom.DicomTag]$Tag,
+    [Parameter(Mandatory = $true)]
+    [Dicom.DicomTag]$Tag,
 
-        [string]$DefaultValue = ""
-    )
+    [string]$DefaultValue = ""
+  )
 
-    try {
-        $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
-        
-        return $method.Invoke($Dataset, @($Tag, $DefaultValue))
-    }
-    catch {
-        Write-LogError "Error extracting DICOM tag value: $_"
+  try {
+    $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
-        return $DefaultValue
-    }
+    return $method.Invoke($Dataset, @($Tag, $DefaultValue))
+  }
+  catch {
+    Write-LogError "Error extracting DICOM tag value: $_"
+
+    return $DefaultValue
+  }
 }
 #################################################################################################################################################
 
@@ -31,39 +31,39 @@ function Get-DicomTagString {
 #################################################################################################################################################
 
 function Extract-StudyTags {
-    param (
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$File
-    )
+  param (
+    [Parameter(Mandatory = $true)]
+    [System.IO.FileInfo]$File
+  )
 
-    try {
-        Write-LogDebug "Extracting DICOM tags from file: $($File.FullName)"
-        
-        $dicomFile        = [Dicom.DicomFile]::Open($File.FullName)
-        $dataset          = $dicomFile.Dataset
-        $method           = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
+  try {
+    Write-LogDebug "Extracting DICOM tags from file: $($File.FullName)"
 
-        $patientName      = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName,      [string]""))
-        $patientBirthDate = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
-        $studyDate        = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate,        [string]""))
-        $modality         = $method.Invoke($dataset, @([Dicom.DicomTag]::Modality,         [string]""))
-        $studyUID         = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
+    $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
+    $dataset = $dicomFile.Dataset
+    $method = [Dicom.DicomDataset].GetMethod("GetSingleValueOrDefault").MakeGenericMethod([string])
 
-        $result      = New-Object PSObject -Property @{
-            PatientName      = $patientName
-            PatientBirthDate = $patientBirthDate
-            StudyDate        = $studyDate
-            Modality         = $modality
-            StudyInstanceUID = $studyUID
-        }
+    $patientName = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientName, [string]""))
+    $patientBirthDate = $method.Invoke($dataset, @([Dicom.DicomTag]::PatientBirthDate, [string]""))
+    $studyDate = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyDate, [string]""))
+    $modality = $method.Invoke($dataset, @([Dicom.DicomTag]::Modality, [string]""))
+    $studyUID = $method.Invoke($dataset, @([Dicom.DicomTag]::StudyInstanceUID, [string]""))
 
-        Write-LogDebug "Successfully extracted DICOM tags for patient: $patientName"
-        return $result
+    $result = New-Object PSObject -Property @{
+      PatientName      = $patientName
+      PatientBirthDate = $patientBirthDate
+      StudyDate        = $studyDate
+      Modality         = $modality
+      StudyInstanceUID = $studyUID
     }
-    catch {
-        Write-LogError "Error extracting DICOM tags from file $($File.FullName): $_"
-        throw
-    }
+
+    Write-LogDebug "Successfully extracted DICOM tags for patient: $patientName"
+    return $result
+  }
+  catch {
+    Write-LogError "Error extracting DICOM tags from file $($File.FullName): $_"
+    throw
+  }
 }
 #################################################################################################################################################
 
@@ -72,12 +72,12 @@ function Extract-StudyTags {
 # GetHashFrom-StudyTags
 #################################################################################################################################################
 function GetHashFrom-StudyTags {
-    param (
-        [Parameter(Mandatory = $true)]
-        [PSObject]$StudyTags
-    )
+  param (
+    [Parameter(Mandatory = $true)]
+    [PSObject]$StudyTags
+  )
 
-    Hash-String -HashInput "$($StudyTags.PatientName)-$($StudyTags.PatientBirthDate)-$($StudyTags.StudyDate)"
+  Hash-String -HashInput "$($StudyTags.PatientName)-$($StudyTags.PatientBirthDate)-$($StudyTags.StudyDate)"
 }
 #################################################################################################################################################
 
@@ -86,95 +86,102 @@ function GetHashFrom-StudyTags {
 # WriteStudyTags-Indented
 #################################################################################################################################################
 function WriteStudyTags-Indented {
-    param (
-        [Parameter(Mandatory = $true)]
-        [PSObject]$StudyTags)
+  param (
+    [Parameter(Mandatory = $true)]
+    [PSObject]$StudyTags)
 
-    if ($global:maskPatientNames) {
-        Write-Indented "Patient Name:     $(Mask-PatientName -Name $StudyTags.PatientName)"
-    } else {
-        Write-Indented "Patient Name:     $($StudyTags.PatientName)"
-    }
-    
-    Write-Indented "Patient DOB:      $($StudyTags.PatientBirthDate)"
-    Write-Indented "Study Date:       $($StudyTags.StudyDate)"
-    Write-Indented "Modality:         $($StudyTags.Modality)"
-    Write-Indented "StudyInstanceUID: $($StudyTags.StudyInstanceUID)"
+  if ($global:maskPatientNames) {
+    Write-Indented "Patient Name:     $(Mask-PatientName -Name $StudyTags.PatientName)"
+  }
+  else {
+    Write-Indented "Patient Name:     $($StudyTags.PatientName)"
+  }
+
+  Write-Indented "Patient DOB:      $($StudyTags.PatientBirthDate)"
+  Write-Indented "Study Date:       $($StudyTags.StudyDate)"
+  Write-Indented "Modality:         $($StudyTags.Modality)"
+  Write-Indented "StudyInstanceUID: $($StudyTags.StudyInstanceUID)"
 }
 #################################################################################################################################################
 
 
 #################################################################################################################################################
-# MaybeStripPixelDataAndThenMoveTo-Path 
+# MaybeStripPixelDataAndThenMoveTo-Path
 #################################################################################################################################################
 function MaybeStripPixelDataAndThenMoveTo-Path {
-    param (
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileInfo]$File,
-        [Parameter(Mandatory = $true)]
-        [string]$Destination
-    )
+  param (
+    [Parameter(Mandatory = $true)]
+    [System.IO.FileInfo]$File,
+    [Parameter(Mandatory = $true)]
+    [string]$Destination
+  )
 
-    try {
-        if ($File.Length -gt $global:largeFileThreshholdBytes) {
-            Write-LogDebug "File $($File.Name) exceeds size threshold, checking for pixel data"
-            
-            $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
-            $dataset = $dicomFile.Dataset
+  try {
+    if ($File.Length -gt $global:largeFileThreshholdBytes) {
+      Write-LogDebug "File $($File.Name) exceeds size threshold, checking for pixel data"
 
-            if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
-                $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
-                
-                $dicomFile.Save($File.FullName)
-                Write-Indented "Pixel Data stripped from $($File.Name) before moving it to $(Trim-BasePath -Path $Destination)."
-                Write-LogInfo "Pixel data stripped from file: $($File.Name)"
-            }
-        }
-        
-        Move-Item -Path $File.FullName -Destination $Destination
-        Write-LogDebug "File moved from $($File.FullName) to $Destination"
+      $dicomFile = [Dicom.DicomFile]::Open($File.FullName)
+      $dataset = $dicomFile.Dataset
+
+      if ($dataset.Contains([Dicom.DicomTag]::PixelData)) {
+        $null = $dataset.Remove([Dicom.DicomTag]::PixelData)
+
+        $dicomFile.Save($File.FullName)
+        Write-Indented "Pixel Data stripped from $($File.Name) before moving it to $(Trim-BasePath -Path $Destination)."
+        Write-LogInfo "Pixel data stripped from file: $($File.Name)"
+      }
     }
-    catch {
-        Write-LogError "Error processing file $($File.FullName): $_"
-        throw
-    }
+
+    Move-Item -Path $File.FullName -Destination $Destination
+    Write-LogDebug "File moved from $($File.FullName) to $Destination"
+  }
+  catch {
+    Write-LogError "Error processing file $($File.FullName): $_"
+    throw
+  }
 }
 #################################################################################################################################################
 
 
 #################################################################################################################################################
-# Move-StudyByStudyInstanceUID: 
+# Move-StudyByStudyInstanceUID:
 #################################################################################################################################################
 function Move-StudyByStudyInstanceUID {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$StudyInstanceUID
-    )
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$StudyInstanceUID
+  )
 
-    Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
-    
-    $operationName = "Move study $StudyInstanceUID"
-    
-    $responses = Invoke-WithRetry -ScriptBlock {
-        $result = Move-StudyByStudyInstanceUIDSync `
-          -StudyInstanceUID $StudyInstanceUID `
-          -DestinationAE    $global:qrDestinationAE `
-          -ServerHost       $global:qrServerHost `
-          -ServerPort       $global:qrServerPort `
-          -ServerAE         $global:qrServerAE `
-          -MyAE             $global:myAE
-        
-        # Validate the result
-        if (-not $result) {
-            throw "C-MOVE operation returned null or false result"
-        }
-        
-        return $result
-    } -MaxRetries 3 -RetryDelayMs 5000 -OperationName $operationName
+  Write-Indented "Issuing move request for StudyInstanceUID '$StudyInstanceUID'..." -NoNewLine
 
-    Write-Host " done."
 
-    return $responses
+  Write-LogInfo "C-MOVE: dicom://$global:myAE:$global:qrServerAE@$global:qrServerHost:$global:qrServerPort/move?destination=$global:qrDestinationAE&study_uid=$StudyInstanceUID"
+
+  $operationName = "Move study $StudyInstanceUID"
+
+  $responses = Invoke-WithRetry -ScriptBlock {
+    Write-LogDebug "Attempting C-MOVE connection to $global:qrServerHost:$global:qrServerPort (AE: $global:qrServerAE)"
+
+    $result = Move-StudyByStudyInstanceUIDSync `
+      -StudyInstanceUID $StudyInstanceUID `
+      -DestinationAE    $global:qrDestinationAE `
+      -ServerHost       $global:qrServerHost `
+      -ServerPort       $global:qrServerPort `
+      -ServerAE         $global:qrServerAE `
+      -MyAE             $global:myAE
+
+    # Validate the result
+    if (-not $result) {
+      throw "C-MOVE operation returned null or false result"
+    }
+
+    Write-LogDebug "C-MOVE operation completed successfully"
+    return $result
+  } -MaxRetries 3 -RetryDelayMs 5000 -OperationName $operationName
+
+  Write-Host " done."
+
+  return $responses
 }
 #################################################################################################################################################
 
@@ -183,38 +190,52 @@ function Move-StudyByStudyInstanceUID {
 # Get-PatientStudiesWithRetry: Query studies for a patient with retry mechanism
 #################################################################################################################################################
 function Get-PatientStudiesWithRetry {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$PatientName,
-        [Parameter(Mandatory=$true)]
-        [string]$PatientBirthDate,
-        [string]$Modality = $null,
-        [int]$MonthsBack = $global:studyFindMonthsBack
-    )
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$PatientName,
+    [Parameter(Mandatory = $true)]
+    [string]$PatientBirthDate,
+    [string]$Modality = $null,
+    [int]$MonthsBack = $global:studyFindMonthsBack
+  )
 
-    $operationName = "Query studies for patient $PatientName"
+  # Log DICOM connection details for C-FIND
+  $maskedPatientName = if ($global:maskPatientNames) { Mask-PatientName -Name $PatientName } else { $PatientName }
+  $queryParams = @("patient=$maskedPatientName", "dob=$PatientBirthDate", "range=${MonthsBack}mo")
+  if ($Modality) { $queryParams += "modality=$Modality" }
+  $queryString = "?" + ($queryParams -join "&")
 
-    return Invoke-WithRetry -ScriptBlock {
-        $cutoffDate = (Get-Date).AddMonths(-$MonthsBack).ToString("yyyyMMdd")
+  # Debug: Check variable values
+  Write-LogInfo "DEBUG C-FIND: myAE='$global:myAE' qrServerAE='$global:qrServerAE' qrServerHost='$global:qrServerHost' qrServerPort='$global:qrServerPort'"
 
-        $studies = Get-StudiesByPatientNameAndBirthDate `
-            -MyAE $global:myAE `
-            -QrServerAE $global:qrServerAE `
-            -QrServerHost $global:qrServerHost `
-            -QrServerPort $global:qrServerPort `
-            -PatientName $PatientName `
-            -PatientBirthDate $PatientBirthDate `
-            -Modality $Modality `
-            -MonthsBack $MonthsBack
+  Write-LogInfo "C-FIND: dicom://$global:myAE:$global:qrServerAE@$global:qrServerHost:$global:qrServerPort/find$queryString"
 
-        # Validate that we got a valid response
-        if ($null -eq $studies) {
-            throw "Query returned null result"
-        }
+  $operationName = "Query studies for patient $maskedPatientName"
 
-        Write-LogDebug "Query returned $($studies.Count) studies for patient $PatientName"
-        return $studies
-    } -MaxRetries 3 -RetryDelayMs 2000 -OperationName $operationName
+  return Invoke-WithRetry -ScriptBlock {
+    $cutoffDate = (Get-Date).AddMonths(-$MonthsBack).ToString("yyyyMMdd")
+    Write-LogDebug "Attempting C-FIND connection to $global:qrServerHost:$global:qrServerPort (AE: $global:qrServerAE)"
+    Write-LogDebug "Query cutoff date: $cutoffDate"
+
+    $studies = Get-StudiesByPatientNameAndBirthDate `
+      -MyAE $global:myAE `
+      -QrServerAE $global:qrServerAE `
+      -QrServerHost $global:qrServerHost `
+      -QrServerPort $global:qrServerPort `
+      -PatientName $PatientName `
+      -PatientBirthDate $PatientBirthDate `
+      -Modality $Modality `
+      -MonthsBack $MonthsBack
+
+    # Validate that we got a valid response
+    if ($null -eq $studies) {
+      throw "Query returned null result"
+    }
+
+    Write-LogDebug "C-FIND operation completed successfully"
+    Write-LogDebug "Query returned $($studies.Count) studies for patient $maskedPatientName"
+    return $studies
+  } -MaxRetries 3 -RetryDelayMs 2000 -OperationName $operationName
 }
 #################################################################################################################################################
 
@@ -222,23 +243,24 @@ function Get-PatientStudiesWithRetry {
 # Mask-PatientName
 #################################################################################################################################################
 function Mask-PatientName {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Name
-    )
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$Name
+  )
 
-    $maskedNameParts = @()
-    $nameParts = $Name.Split('^')
+  $maskedNameParts = @()
+  $nameParts = $Name.Split('^')
 
-    foreach ($part in $nameParts) {
-        if ($part.Length -gt 1) {
-            $maskedPart = $part[0] + '?' * ($part.Length - 1)
-            $maskedNameParts += $maskedPart
-        } else {
-            $maskedNameParts += $part
-        }
+  foreach ($part in $nameParts) {
+    if ($part.Length -gt 1) {
+      $maskedPart = $part[0] + '?' * ($part.Length - 1)
+      $maskedNameParts += $maskedPart
     }
+    else {
+      $maskedNameParts += $part
+    }
+  }
 
-    return ($maskedNameParts -join '^')
+  return ($maskedNameParts -join '^')
 }
 #################################################################################################################################################
